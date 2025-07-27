@@ -1,0 +1,38 @@
+{
+  "name": "ai-chatbot-widget",
+  "version": "1.0.0",
+  "description": "A complete full-stack AI chatbot widget that can be embedded into any website. Powered by OpenAI GPT-4.",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "setup": "npm run install-backend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/ai-chatbot-widget.git"
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "widget",
+    "openai",
+    "gpt-4",
+    "embed",
+    "customer-support",
+    "javascript",
+    "nodejs",
+    "express"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/ai-chatbot-widget/issues"
+  },
+  "homepage": "https://github.com/yourusername/ai-chatbot-widget#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
