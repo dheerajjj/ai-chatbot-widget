@@ -3,7 +3,7 @@
   
   // Configuration - can be overridden by data attributes
   const defaultConfig = {
-    apiUrl: 'http://localhost:3000',
+    apiUrl: '', // Must be set via data-api-url attribute
     position: 'bottom-right',
     primaryColor: '#667eea',
     darkMode: false,
