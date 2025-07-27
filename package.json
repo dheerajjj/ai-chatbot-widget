@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dheerajjj/ai-chatbot-widget.git"
+    "url": "git+https://github.com/yourusername/ai-chatbot-widget.git"
   },
   "keywords": [
     "ai",
@@ -26,7 +26,7 @@
     "nodejs",
     "express"
   ],
-  "author": "Your Name <dheeraj.koduru@gmail.com>",
+  "author": "Your Name <your.email@example.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/yourusername/ai-chatbot-widget/issues"
