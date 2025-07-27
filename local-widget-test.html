@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f0f0f0;
+        }
+        
+        .info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>🧪 Local Widget Test</h1>
+        <p><strong>Status:</strong> <span id="status">Testing...</span></p>
+        <p>This test uses an inline widget script to verify basic functionality.</p>
+    </div>
+
+    <!-- Inline Widget Script for Testing -->
+    <script>
+        console.log('[Local Test] Starting widget initialization...');
+        
+        (function() {
+            'use strict';
+            
+            console.log('[Local Test] Widget script executed');
+            
+            // Simple configuration
+            const config = {
+                apiUrl: 'https://ai-chatbot-widget-production.up.railway.app',
+                position: 'bottom-right',
+                primaryColor: '#667eea',
+                title: 'Test Assistant',
+                subtitle: 'Local Test',
+                welcomeMessage: '👋 Local test widget!'
+            };
+            
+            console.log('[Local Test] Configuration:', config);
+            
+            // Create CSS styles
+            function createStyles() {
+                console.log('[Local Test] Creating styles...');
+                const style = document.createElement('style');
+                style.textContent = `
+                    .ai-chatbot-widget {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        z-index: 2147483647;
+                        font-family: Arial, sans-serif;
+                    }
+                    
+                    .ai-chat-toggle {
+                        width: 60px;
+                        height: 60px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, ${config.primaryColor} 0%, #764ba2 100%);
+                        border: none;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+                        color: white;
+                        font-size: 24px;
+                    }
+                    
+                    .ai-chat-toggle:hover {
+                        transform: scale(1.1);
+                    }
+                `;
+                document.head.appendChild(style);
+                console.log('[Local Test] Styles added to head');
+            }
+            
+            // Create widget HTML
+            function createWidget() {
+                console.log('[Local Test] Creating widget element...');
+                const widget = document.createElement('div');
+                widget.className = 'ai-chatbot-widget';
+                widget.innerHTML = `
+                    <button class="ai-chat-toggle" id="aiChatToggle">
+                        💬
+                    </button>
+                `;
+                
+                document.body.appendChild(widget);
+                console.log('[Local Test] Widget element added to body');
+                return widget;
+            }
+            
+            // Initialize widget
+            function initWidget(widget) {
+                console.log('[Local Test] Initializing widget functionality...');
+                const toggle = widget.querySelector('#aiChatToggle');
+                
+                if (toggle) {
+                    console.log('[Local Test] Toggle button found, adding click handler');
+                    toggle.addEventListener('click', function() {
+                        console.log('[Local Test] Toggle button clicked!');
+                        alert('Widget toggle clicked! The basic functionality works.');
+                    });
+                } else {
+                    console.error('[Local Test] Toggle button not found');
+                }
+            }
+            
+            // Initialize when DOM is ready
+            function init() {
+                console.log('[Local Test] Init function called, DOM state:', document.readyState);
+                
+                if (document.readyState === 'loading') {
+                    console.log('[Local Test] DOM still loading, waiting...');
+                    document.addEventListener('DOMContentLoaded', init);
+                    return;
+                }
+                
+                console.log('[Local Test] DOM ready, creating widget...');
+                
+                try {
+                    createStyles();
+                    const widget = createWidget();
+                    
+                    if (widget) {
+                        console.log('[Local Test] Widget created successfully');
+                        initWidget(widget);
+                        
+                        // Update status
+                        setTimeout(() => {
+                            const status = document.getElementById('status');
+                            if (status) {
+                                status.textContent = '✅ Widget Created Successfully!';
+                                status.style.color = '#28a745';
+                            }
+                        }, 100);
+                    } else {
+                        console.error('[Local Test] Widget creation failed');
+                    }
+                } catch (error) {
+                    console.error('[Local Test] Error during initialization:', error);
+                }
+            }
+            
+            // Start initialization
+            console.log('[Local Test] Starting initialization...');
+            init();
+            
+        })();
+    </script>
+</body>
+</html>

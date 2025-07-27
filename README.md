@@ -2,6 +2,18 @@
 
 A complete full-stack AI chatbot widget that can be embedded into any website. Powered by OpenAI GPT-4 with a professional-looking floating interface similar to Intercom or Tidio.
 
+## 🌟 Live Demo
+
+**🚀 Deployed Backend:** `https://ai-chatbot-widget-production.up.railway.app`  
+**📊 Admin Dashboard:** [https://ai-chatbot-widget-production.up.railway.app/admin](https://ai-chatbot-widget-production.up.railway.app/admin)  
+**🔑 Admin Login:** `admin` / `secure123`
+
+### Quick Test
+Add this to any HTML page to test the live widget:
+```html
+<script src="https://ai-chatbot-widget-production.up.railway.app/widget.js"></script>
+```
+
 ## ✨ Features
 
 ### Frontend Widget
@@ -96,7 +108,11 @@ Open `frontend/example-website.html` in your browser to see the widget in action
 Add this single line to any website:
 
 ```html
+<!-- For local development -->
 <script src="http://localhost:3000/widget.js"></script>
+
+<!-- For production (using deployed backend) -->
+<script src="https://ai-chatbot-widget-production.up.railway.app/widget.js"></script>
 ```
 
 ### Advanced Integration
@@ -105,8 +121,7 @@ Customize the widget with data attributes:
 
 ```html
 <script 
-  src="http://localhost:3000/widget.js"
-  data-api-url="https://your-api-domain.com"
+  src="https://ai-chatbot-widget-production.up.railway.app/widget.js"
   data-primary-color="#ff6b6b"
   data-position="bottom-left"
   data-title="Custom Assistant"

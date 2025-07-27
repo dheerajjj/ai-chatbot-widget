@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        
+        .debug-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        #console-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <h1>🔍 Widget Debug Test</h1>
+        
+        <div id="widget-status" class="status info">
+            <strong>Status:</strong> Initializing...
+        </div>
+        
+        <div class="status info">
+            <strong>Script URL:</strong> https://ai-chatbot-widget-production.up.railway.app/widget.js<br>
+            <strong>API URL:</strong> https://ai-chatbot-widget-production.up.railway.app<br>
+            <strong>Expected Position:</strong> Bottom-right corner
+        </div>
+        
+        <button onclick="checkWidget()">🔍 Check Widget Status</button>
+        <button onclick="testScriptLoad()">📥 Test Script Loading</button>
+        <button onclick="clearConsole()">🧹 Clear Console</button>
+        
+        <h3>Console Output:</h3>
+        <div id="console-output"></div>
+    </div>
+
+    <script>
+        // Debug logging function
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const output = document.getElementById('console-output');
+            const colors = {
+                'info': '#17a2b8',
+                'success': '#28a745',
+                'error': '#dc3545',
+                'warning': '#ffc107'
+            };
+            
+            output.innerHTML += `<span style="color: ${colors[type]}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+            
+            // Also log to browser console
+            console.log(`[Widget Debug] ${message}`);
+        }
+
+        function checkWidget() {
+            debugLog('Checking widget status...', 'info');
+            
+            const widget = document.querySelector('.ai-chatbot-widget');
+            const toggle = document.querySelector('#aiChatToggle');
+            const script = document.querySelector('script[src*="widget.js"]');
+            
+            if (script) {
+                debugLog('✅ Widget script tag found', 'success');
+            } else {
+                debugLog('❌ Widget script tag NOT found', 'error');
+            }
+            
+            if (widget) {
+                debugLog('✅ Widget element found in DOM', 'success');
+                debugLog(`Widget position: ${getComputedStyle(widget).position}`, 'info');
+                debugLog(`Widget z-index: ${getComputedStyle(widget).zIndex}`, 'info');
+            } else {
+                debugLog('❌ Widget element NOT found in DOM', 'error');
+            }
+            
+            if (toggle) {
+                debugLog('✅ Chat toggle button found', 'success');
+                debugLog(`Button visibility: ${getComputedStyle(toggle).visibility}`, 'info');
+                debugLog(`Button display: ${getComputedStyle(toggle).display}`, 'info');
+            } else {
+                debugLog('❌ Chat toggle button NOT found', 'error');
+            }
+            
+            // Update status
+            const statusDiv = document.getElementById('widget-status');
+            if (widget && toggle) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '<strong>Status:</strong> ✅ Widget loaded successfully!';
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<strong>Status:</strong> ❌ Widget failed to load';
+            }
+        }
+
+        function testScriptLoad() {
+            debugLog('Testing script loading...', 'info');
+            
+            fetch('https://ai-chatbot-widget-production.up.railway.app/widget.js')
+                .then(response => {
+                    if (response.ok) {
+                        debugLog('✅ Widget script is accessible', 'success');
+                        debugLog(`Response status: ${response.status}`, 'info');
+                        return response.text();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                })
+                .then(scriptContent => {
+                    debugLog(`✅ Script loaded, length: ${scriptContent.length} characters`, 'success');
+                    if (scriptContent.includes('ai-chatbot-widget')) {
+                        debugLog('✅ Script contains widget code', 'success');
+                    } else {
+                        debugLog('❌ Script missing widget code', 'error');
+                    }
+                })
+                .catch(error => {
+                    debugLog(`❌ Script loading failed: ${error.message}`, 'error');
+                });
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+        }
+
+        // Monitor script loading
+        debugLog('Debug page loaded', 'info');
+        
+        // Check when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                debugLog('DOM Content Loaded', 'info');
+                setTimeout(checkWidget, 1000); // Check after 1 second
+            });
+        } else {
+            debugLog('DOM already ready', 'info');
+            setTimeout(checkWidget, 1000);
+        }
+
+        // Check when window loads
+        window.addEventListener('load', () => {
+            debugLog('Window fully loaded', 'info');
+            setTimeout(checkWidget, 500);
+        });
+
+        // Override console.error to capture any script errors
+        const originalError = console.error;
+        console.error = function(...args) {
+            debugLog(`Console Error: ${args.join(' ')}`, 'error');
+            originalError.apply(console, args);
+        };
+
+        // Capture any uncaught errors
+        window.addEventListener('error', (event) => {
+            debugLog(`Uncaught Error: ${event.message} at ${event.filename}:${event.lineno}`, 'error');
+        });
+    </script>
+
+    <!-- AI Chatbot Widget Integration -->
+    <script 
+        src="https://ai-chatbot-widget-production.up.railway.app/widget.js"
+        data-api-url="https://ai-chatbot-widget-production.up.railway.app"
+        data-title="Debug Assistant"
+        data-welcome-message="👋 Debug test widget!"
+        data-subtitle="Debug Mode • Testing">
+    </script>
+</body>
+</html>

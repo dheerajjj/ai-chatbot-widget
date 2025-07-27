@@ -1,9 +1,11 @@
 (function() {
   'use strict';
   
+  console.log('[AI Widget] Starting initialization...');
+  
   // Configuration - can be overridden by data attributes
   const defaultConfig = {
-    apiUrl: '', // Must be set via data-api-url attribute
+    apiUrl: 'https://ai-chatbot-widget-production.up.railway.app', // Default to your deployed backend
     position: 'bottom-right',
     primaryColor: '#667eea',
     darkMode: false,
@@ -15,22 +17,35 @@
   
   // Get configuration from script tag data attributes
   function getConfig() {
+    console.log('[AI Widget] Getting configuration...');
     const script = document.querySelector('script[src*="widget.js"]');
-    if (!script) return defaultConfig;
+    
+    if (!script) {
+      console.log('[AI Widget] No script tag found, using default config');
+      return defaultConfig;
+    }
     
     const config = { ...defaultConfig };
     
-    // If no API URL is provided, try to infer it from the script source
-    if (!script.dataset.apiUrl) {
+    // Use data-api-url if provided, otherwise auto-detect from script source
+    if (script.dataset.apiUrl) {
+      config.apiUrl = script.dataset.apiUrl;
+      console.log('[AI Widget] Using provided API URL:', config.apiUrl);
+    } else {
+      // Try to auto-detect from script source
       try {
         const scriptUrl = new URL(script.src);
-        config.apiUrl = `${scriptUrl.protocol}//${scriptUrl.host}`;
+        const detectedUrl = `${scriptUrl.protocol}//${scriptUrl.host}`;
+        // Only use detected URL if it's not a file:// or local URL
+        if (scriptUrl.protocol === 'https:' || scriptUrl.protocol === 'http:') {
+          config.apiUrl = detectedUrl;
+          console.log('[AI Widget] Auto-detected API URL:', config.apiUrl);
+        } else {
+          console.log('[AI Widget] Using default API URL (script not from HTTP/HTTPS):', config.apiUrl);
+        }
       } catch (e) {
-        console.error('Could not determine API URL from script source:', e);
-        config.apiUrl = window.location.origin; // Fallback to current page origin
+        console.log('[AI Widget] Could not auto-detect API URL, using default:', config.apiUrl);
       }
-    } else {
-      config.apiUrl = script.dataset.apiUrl;
     }
     
     // Override with other data attributes
@@ -48,7 +63,7 @@
   const config = getConfig();
   
   // Debug logging
-  console.log('[AI Widget] Configuration loaded:', {
+  console.log('[AI Widget] Final configuration:', {
     apiUrl: config.apiUrl,
     position: config.position,
     title: config.title
