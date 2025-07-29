@@ -1,317 +1,291 @@
 # 🤖 AI Chatbot Widget
 
-A complete full-stack AI chatbot widget that can be embedded into any website. Powered by OpenAI GPT-4 with a professional-looking floating interface similar to Intercom or Tidio.
-
-## 🌟 Live Demo
-
-**🚀 Deployed Backend:** `https://ai-chatbot-widget-production.up.railway.app`  
-**📊 Admin Dashboard:** [https://ai-chatbot-widget-production.up.railway.app/admin](https://ai-chatbot-widget-production.up.railway.app/admin)  
-**🔑 Admin Login:** `admin` / `secure123`
-
-### Quick Test
-Add this to any HTML page to test the live widget:
-```html
-<script src="https://ai-chatbot-widget-production.up.railway.app/widget.js"></script>
-```
+A production-ready, embeddable AI chatbot widget powered by OpenAI GPT models. Features user management, subscription billing, multi-currency support, and comprehensive analytics.
 
 ## ✨ Features
 
-### Frontend Widget
-- 🎨 **Modern Design**: Beautiful floating chatbot interface with smooth animations
-- 📱 **Mobile Responsive**: Works perfectly on all devices
-- 🌙 **Dark Mode**: Built-in theme toggle
-- ⚙️ **Customizable**: Colors, position, messages, and more
-- 🔄 **Typing Indicators**: Real-time typing animation
-- 💬 **Chat History**: Maintains conversation within session
+### Core Features
+- 🤖 **OpenAI Integration**: Powered by GPT-4o Mini for intelligent responses
+- 🔧 **Easy Integration**: Simple script tag embedding
+- 🎨 **Customizable**: Colors, position, messages, and branding
+- 📱 **Responsive**: Works on desktop and mobile devices
+- 🔒 **Secure**: API key authentication and rate limiting
 
-### Backend
-- 🚀 **Node.js + Express**: Fast and reliable API server
-- 🔐 **Secure**: Environment variables, rate limiting, input validation
-- 📊 **Admin Dashboard**: Monitor usage and chat logs
-- 🔗 **CORS Enabled**: Ready for cross-origin requests
-- 📈 **Analytics**: Basic logging and statistics
-- 🪝 **Webhook Support**: Optional integration with external services
+### Business Features
+- 💳 **Stripe Payments**: Multi-currency subscription billing
+- 👥 **User Management**: Registration, authentication, and profiles
+- 📊 **Analytics**: Message tracking, user engagement, and revenue insights
+- 🌍 **Multi-Currency**: Support for INR, USD, EUR, GBP, CAD, AUD
+- 📈 **Usage Limits**: Tiered plans with message quotas
 
-### Security & Performance
-- 🛡️ **Rate Limiting**: Prevents abuse
-- 🔒 **Input Validation**: Sanitized user inputs
-- 🚫 **No API Key Exposure**: Keys safely stored on backend
-- ⚡ **Optimized**: Lightweight and fast loading
+### Technical Features
+- 🚀 **MongoDB Integration**: Scalable data storage
+- 🔄 **Session Management**: Conversation context and history
+- ⚡ **Rate Limiting**: Protection against abuse
+- 📝 **Comprehensive Logging**: Chat logs and analytics
+- 🛡️ **Security**: CORS, CSP, and input validation
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js (v16 or higher)
-- OpenAI API key
-- npm or yarn
-
-### 1. Installation
-
+### 1. Clone the Repository
 ```bash
-# Clone the repository
-git clone [your-repo-url]
+git clone https://github.com/yourusername/ai-chatbot-widget.git
 cd ai-chatbot-widget
+```
 
-# Install backend dependencies
-cd backend
+### 2. Install Dependencies
+```bash
 npm install
+```
 
-# Set up environment variables
+### 3. Setup Environment Variables
+```bash
 cp .env.example .env
 ```
 
-### 2. Configuration
-
-Edit the `.env` file in the `backend` directory:
-
+Edit `.env` with your configuration:
 ```env
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4
+OPENAI_MODEL=gpt-4o-mini
 
-# Server Configuration
-PORT=3000
-NODE_ENV=development
+# Database
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
 
-# CORS Configuration
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080,http://127.0.0.1:5500
+# Stripe (for payments)
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
 
-# Rate Limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-
-# Admin Configuration
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=secure123
+# Security
+JWT_SECRET=your_secure_jwt_secret_here
+ADMIN_PASSWORD=your_secure_password_here
 ```
 
-### 3. Start the Server
-
+### 4. Start the Server
 ```bash
-# Development mode
-npm run dev
-
-# Production mode
 npm start
+# or
+node server-mongo.js
 ```
 
-The server will start on `http://localhost:3000`
-
-### 4. Test the Widget
-
-Open `frontend/example-website.html` in your browser to see the widget in action.
-
-## 🔧 Integration
-
-### Basic Integration
-
-Add this single line to any website:
-
-```html
-<!-- For local development -->
-<script src="http://localhost:3000/widget.js"></script>
-
-<!-- For production (using deployed backend) -->
-<script src="https://ai-chatbot-widget-production.up.railway.app/widget.js"></script>
-```
-
-### Advanced Integration
-
-Customize the widget with data attributes:
-
+### 5. Embed the Widget
+Add this script tag to your website:
 ```html
 <script 
-  src="https://ai-chatbot-widget-production.up.railway.app/widget.js"
-  data-primary-color="#ff6b6b"
-  data-position="bottom-left"
-  data-title="Custom Assistant"
-  data-subtitle="Online • Here to help"
-  data-welcome-message="Hello! How can I help you today?"
-  data-placeholder="Ask me anything...">
+  src="https://your-domain.com/widget-fixed.js"
+  data-api-key="your_api_key_here"
+  data-api-url="https://your-domain.com"
+  data-title="AI Assistant"
+  data-welcome-message="Hello! How can I help you today?">
 </script>
 ```
 
-### Configuration Options
+## 📋 Prerequisites
 
-| Attribute | Description | Default |
-|-----------|-------------|---------|
-| `data-api-url` | Backend API URL | `http://localhost:3000` |
-| `data-position` | Widget position | `bottom-right` |
-| `data-primary-color` | Primary color | `#667eea` |
-| `data-title` | Assistant name | `AI Assistant` |
-| `data-subtitle` | Status message | `Online • Usually replies instantly` |
-| `data-welcome-message` | Initial greeting | `👋 Hi there! I'm your AI assistant...` |
-| `data-placeholder` | Input placeholder | `Type your message...` |
+- Node.js 16+ 
+- MongoDB Atlas account or local MongoDB
+- OpenAI API key
+- Stripe account (for payments)
 
-### Position Options
+## 🔧 Configuration
+
+### Widget Customization
+```html
+<script 
+  src="https://your-domain.com/widget-fixed.js"
+  data-api-key="cb_your_api_key"
+  data-api-url="https://your-api-domain.com"
+  data-primary-color="#667eea"
+  data-position="bottom-right"
+  data-title="AI Assistant"
+  data-subtitle="Online • Usually replies instantly"
+  data-welcome-message="👋 Hi! How can I help you today?"
+  data-placeholder="Type your message...">
+</script>
+```
+
+### Available Positions
 - `bottom-right` (default)
 - `bottom-left`
 - `top-right`
 - `top-left`
 
-## 📊 Admin Dashboard
+### Subscription Plans
 
-Access the admin dashboard at `http://localhost:3000/admin`
+| Plan | Price (INR/month) | Messages/Month | Features |
+|------|------------------|----------------|----------|
+| Free | ₹0 | 100 | Basic chat |
+| Starter | ₹299 | 1,000 | Priority support |
+| Professional | ₹999 | 10,000 | Analytics dashboard |
+| Enterprise | ₹2,999 | Unlimited | Custom branding |
 
-**Default credentials:**
-- Username: `admin`
-- Password: `secure123`
+## 🏗️ Project Structure
 
-### Features
-- 📈 Real-time statistics
-- 💬 Recent chat logs
-- 📱 Session tracking
-- 🖥️ Memory usage monitoring
-- 🔄 Auto-refresh
+```
+ai-chatbot-widget/
+├── config/
+│   ├── database.js          # MongoDB configuration
+│   └── pricing.js           # Subscription plans
+├── models/
+│   ├── User.js              # User schema
+│   └── ChatSession.js       # Chat session schema
+├── routes/
+│   ├── auth.js              # Authentication routes
+│   └── payments.js          # Stripe payment routes
+├── services/
+│   └── DatabaseService.js   # Database abstraction layer
+├── utils/
+│   └── currency.js          # Multi-currency utilities
+├── public/
+│   └── widget-fixed.js      # Main widget script
+├── server-mongo.js          # Main server file
+├── package.json
+└── README.md
+```
 
-## 🛠️ API Endpoints
+## 🔌 API Endpoints
 
-### Chat
-- **POST** `/ask` - Send message to AI
-- **GET** `/config` - Get widget configuration
+### Core Endpoints
+- `GET /` - API information
+- `GET /health` - Health check
+- `POST /ask` - Chat with AI (requires API key)
+- `GET /config` - Widget configuration
+
+### User Management
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `GET /auth/profile` - User profile
+
+### Payments
+- `GET /api/payments/plans` - Available plans
+- `POST /api/payments/create-subscription` - Create subscription
+- `POST /api/payments/cancel-subscription` - Cancel subscription
 
 ### Admin
-- **GET** `/admin` - Admin dashboard
-- **GET** `/admin/stats` - Statistics (requires auth)
+- `GET /admin/stats` - System statistics
+- `GET /monetization` - Monetization dashboard
 
-### Health
-- **GET** `/health` - Health check
+## 🛠️ Development
 
-## 🎨 Customization
+### Local Development
+```bash
+# Install dependencies
+npm install
 
-### Styling
-The widget uses CSS custom properties and can be styled by overriding the classes:
+# Copy environment variables
+cp .env.example .env
 
-```css
-.ai-chatbot-widget {
-  /* Custom styles */
-}
+# Start development server
+npm run dev
 ```
 
-### API Integration
-The widget sends the following data to the `/ask` endpoint:
+### Testing
+```bash
+# Run tests
+npm test
 
-```json
-{
-  "message": "User's message",
-  "sessionId": "unique-session-id",
-  "userAgent": "browser-info",
-  "referrer": "website-url"
-}
+# Test the widget
+open http://localhost:3000/test
 ```
 
-## 🔐 Security Best Practices
+### Creating Test Users
+```bash
+# Create a test user with API key
+node create-test-user.js
 
-1. **Environment Variables**: Never commit `.env` files
-2. **API Keys**: Keep OpenAI keys secure on backend only
-3. **Rate Limiting**: Configure appropriate limits
-4. **CORS**: Set specific allowed origins in production
-5. **Admin Access**: Change default admin credentials
-6. **HTTPS**: Use SSL certificates in production
+# Get existing user API key
+node get-test-user.js
+```
 
-## 📱 Mobile Support
+## 🚀 Deployment
 
-The widget is fully responsive and includes:
-- Touch-friendly interface
-- Mobile-optimized sizing
-- Swipe gestures support
-- Keyboard handling
-
-## 🚢 Deployment
-
-### Backend Deployment Options
-
-1. **Fly.io** (Recommended)
-2. **Railway**
-3. **Render**
-4. **Heroku**
-5. **DigitalOcean**
-
-### Frontend Deployment Options
-
-1. **Vercel** (Recommended)
-2. **Netlify**
-3. **GitHub Pages**
-4. **AWS S3**
-
-### Environment Setup
-
-For production deployment:
-
-1. Set `NODE_ENV=production`
-2. Update `ALLOWED_ORIGINS` with your domains
-3. Use strong admin credentials
-4. Enable HTTPS
-5. Set up proper error monitoring
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-**Widget not loading:**
-- Check CORS settings
-- Verify API URL is correct
-- Check browser console for errors
-
-**OpenAI API errors:**
-- Verify API key is correct
-- Check API usage limits
-- Ensure model availability
-
-**Rate limiting:**
-- Adjust `RATE_LIMIT_MAX_REQUESTS`
-- Increase `RATE_LIMIT_WINDOW_MS`
-
-### Debugging
-
-Enable verbose logging:
+### Environment Variables for Production
 ```env
-NODE_ENV=development
+NODE_ENV=production
+PORT=3000
+MONGODB_URI=mongodb+srv://...
+OPENAI_API_KEY=sk-...
+STRIPE_SECRET_KEY=sk_live_...
+JWT_SECRET=your_production_jwt_secret
+ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 ```
 
-## 📈 Analytics & Monitoring
+### Deployment Platforms
+- **Railway**: `railway deploy`
+- **Heroku**: `git push heroku main`
+- **Vercel**: `vercel deploy`
+- **DigitalOcean**: Use App Platform
 
-### Built-in Analytics
-- Total messages
-- Unique sessions
-- Response times
-- Memory usage
-- Error rates
+## 📊 Analytics & Monitoring
 
-### External Integration
-Configure webhooks to send data to:
-- Google Analytics
-- Mixpanel
-- Custom analytics platforms
+### Available Metrics
+- Total users and registrations
+- Message count and trends
+- Revenue and subscription analytics
+- Popular conversation topics
+- User engagement patterns
+
+### Admin Dashboard
+Access the admin dashboard at: `https://your-domain.com/monetization`
+
+Default credentials:
+- Username: `admin`
+- Password: (set in environment variables)
+
+## 🔒 Security Features
+
+- **API Key Authentication**: Secure widget access
+- **Rate Limiting**: Prevent abuse and spam
+- **CORS Protection**: Cross-origin request security
+- **Input Validation**: Sanitize user inputs
+- **Environment Variables**: Secure credential storage
+- **JWT Tokens**: Secure user sessions
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support and questions:
-- Create an issue on GitHub
-- Check the troubleshooting section
-- Review the API documentation
+### Common Issues
+
+**Widget not loading?**
+- Check API key validity
+- Verify CORS settings
+- Check browser console for errors
+
+**Chat not responding?**
+- Verify OpenAI API key
+- Check API key usage limits
+- Review server logs
+
+**Payment issues?**
+- Verify Stripe keys
+- Check webhook configuration
+- Review Stripe dashboard
+
+### Getting Help
+- 📧 Email: support@your-domain.com
+- 💬 Discord: [Your Discord Server]
+- 📖 Documentation: [Your Docs URL]
 
 ## 🎯 Roadmap
 
-- [ ] File upload support
-- [ ] Voice input/output
 - [ ] Multi-language support
+- [ ] Voice chat integration
 - [ ] Advanced analytics
-- [ ] Plugin system
-- [ ] Team collaboration features
+- [ ] White-label solutions
+- [ ] API webhooks
+- [ ] Advanced customization options
 
 ---
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by Dheeraj

@@ -6,16 +6,25 @@ yarn-error.log*
 
 # Environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.monetization
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
-
-# Logs
-logs
-*.log
 
 # Coverage directory used by tools like istanbul
 coverage/
@@ -43,13 +52,18 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-.env.test
-.env.production
+# parcel-bundler cache
+.cache
+.parcel-cache
 
-# Chat logs
-chat-logs.json
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS generated files
 .DS_Store
@@ -60,12 +74,36 @@ chat-logs.json
 ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+
+# Test files and development artifacts
+test-*.html
+debug-*.html
+*-test.html
+*.test.js
+test-*.js
+local-*.html
+customer-integration-example.html
+
+# Widget backup files
+widget.js.backup
+widget-*.js.backup
+
+# Development servers
+mock-server.js
+server-simple.js
+
+# Temporary utility scripts
+create-test-user.js
+get-test-user.js
+test-security.js
 
 # Build files
 dist/
