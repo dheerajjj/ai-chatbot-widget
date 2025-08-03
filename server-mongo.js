@@ -14,10 +14,22 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI with error handling
+let openai;
+try {
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('⚠️ OPENAI_API_KEY not found in environment variables');
+    console.warn('Please check your .env file and ensure OPENAI_API_KEY is set');
+  } else {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    console.log('✅ OpenAI client initialized successfully');
+  }
+} catch (error) {
+  console.error('❌ Failed to initialize OpenAI client:', error.message);
+  console.error('Please check your OPENAI_API_KEY in the .env file');
+}
 
 // Security and middleware
 app.use(helmet({
@@ -142,6 +154,53 @@ async function startServer() {
         database: status,
         openai: !!process.env.OPENAI_API_KEY
       });
+    });
+    
+    // IP detection endpoint
+    app.get('/ip', async (req, res) => {
+      try {
+        // Get external IP using a third-party service
+        const https = require('https');
+        const options = {
+          hostname: 'api.ipify.org',
+          port: 443,
+          path: '/',
+          method: 'GET'
+        };
+        
+        const ipReq = https.request(options, (ipRes) => {
+          let data = '';
+          ipRes.on('data', (chunk) => {
+            data += chunk;
+          });
+          ipRes.on('end', () => {
+            res.json({
+              serverIP: data.trim(),
+              requestIP: req.ip,
+              forwardedFor: req.headers['x-forwarded-for'],
+              timestamp: new Date().toISOString()
+            });
+          });
+        });
+        
+        ipReq.on('error', (error) => {
+          res.json({
+            error: 'Could not determine external IP',
+            requestIP: req.ip,
+            forwardedFor: req.headers['x-forwarded-for'],
+            timestamp: new Date().toISOString()
+          });
+        });
+        
+        ipReq.end();
+      } catch (error) {
+        res.json({
+          error: error.message,
+          requestIP: req.ip,
+          forwardedFor: req.headers['x-forwarded-for'],
+          timestamp: new Date().toISOString()
+        });
+      }
     });
 
 
@@ -359,7 +418,12 @@ async function startServer() {
 
     // Test page
     app.get('/test', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'simple-test.html'));
+      res.sendFile(path.join(__dirname, 'public', 'test-simple.html'));
+    });
+    
+    // Simple test page
+    app.get('/test-simple', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'test-simple.html'));
     });
 
     // Get test API key for widget testing
@@ -452,8 +516,26 @@ async function startServer() {
       res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
     });
     
-    // Serve admin dashboard page
-    app.get('/admin', (req, res) => {
+    // Admin login page
+    app.get('/admin-login', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'admin-login.html'));
+    });
+    
+    // Admin login endpoint
+    app.post('/admin/login', (req, res) => {
+      const { username, password } = req.body;
+      
+      // Check credentials
+      if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        res.json({ success: true, token: 'admin-authenticated' });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
+    });
+    
+    // Serve admin dashboard page with authentication
+    app.get('/admin', (req, res, next) => {
+      // Check for token in localStorage or request
       res.sendFile(path.join(__dirname, 'public', 'admin.html'));
     });
 
