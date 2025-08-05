@@ -51,27 +51,11 @@ class DatabaseService {
       }
       return await user.save();
     } else {
-      // Mock database fallback
-      const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-      const apiKey = 'cb_' + Math.random().toString(36).substr(2, 32);
-      
-      const user = {
-        _id: userId,
-        ...userData,
-        apiKey,
-        subscription: { plan: 'free', status: 'active' },
-        usage: { messagesThisMonth: 0, totalMessages: 0 },
-        widgetConfig: {
-          primaryColor: '#667eea',
-          position: 'bottom-right',
-          title: 'AI Assistant',
-          welcomeMessage: 'Hello! How can I help you today?'
-        },
-        createdAt: new Date(),
-        ...userData
-      };
-      
-      this.mockDB.users.push(user);
+      // Mock database fallback - use MockUser class
+      const MockUser = this.mockDB.User;
+      const user = new MockUser(userData);
+      user.generateApiKey();
+      await user.save();
       return user;
     }
   }
@@ -80,7 +64,7 @@ class DatabaseService {
     if (this.isMongoConnected) {
       return await this.models.User.findOne({ email });
     } else {
-      return this.mockDB.users.find(u => u.email === email);
+      return await this.mockDB.User.findOne({ email });
     }
   }
 
@@ -96,7 +80,7 @@ class DatabaseService {
     if (this.isMongoConnected) {
       return await this.models.User.findById(userId);
     } else {
-      return this.mockDB.users.find(u => u._id === userId);
+      return await this.mockDB.User.findById(userId);
     }
   }
 

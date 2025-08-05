@@ -2,8 +2,10 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
-// Use mock DB for local testing
-const { User } = require('../mockDB');
+// Use DatabaseService for both MongoDB and mock DB
+const DatabaseService = require('../services/DatabaseService');
+const EmailService = require('../services/EmailService');
+const OTPService = require('../services/OTPService');
 const router = express.Router();
 
 // Token blacklist for logout functionality (in-memory for demo)
@@ -72,13 +74,13 @@ router.post('/signup', [
     const { name, email, password, company, website, phone } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await DatabaseService.findUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
     // Create new user
-    const user = new User({
+    const user = await DatabaseService.createUser({
       name,
       email,
       password,
@@ -87,10 +89,22 @@ router.post('/signup', [
       phone
     });
 
-    // Generate API key
-    user.generateApiKey();
+    // Send welcome email (async, non-blocking)
+    EmailService.sendWelcomeEmail(user.email, user.name).catch(error => {
+      console.error('Failed to send welcome email:', error);
+    });
 
-    await user.save();
+    // Generate and send email OTP for verification
+    try {
+      const otp = await OTPService.generateAndStoreOTP(user.email, 'email');
+      
+      // Send OTP via email
+      EmailService.sendOTPEmail(user.email, user.name, otp).catch(error => {
+        console.error('Failed to send OTP email:', error);
+      });
+    } catch (error) {
+      console.error('Failed to generate/send OTP:', error);
+    }
 
     // Generate secure JWT token
     const token = generateSecureToken({ userId: user._id, email: user.email });
@@ -99,15 +113,21 @@ router.post('/signup', [
       success: true,
       message: 'User registered successfully',
       token,
-      redirectTo: '/dashboard',
+      redirectTo: '/welcome-dashboard',
+      needsVerification: {
+        phone: !!(phone && phone.trim()),
+        email: true
+      },
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         company: user.company,
         website: user.website,
+        phone: user.phone,
         subscription: user.subscription,
-        apiKey: user.apiKey
+        apiKey: user.apiKey,
+        verificationStatus: user.verificationStatus
       }
     });
 
@@ -134,13 +154,13 @@ router.post('/register', [
     const { name, email, password, company, website, phone } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await DatabaseService.findUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
     // Create new user
-    const user = new User({
+    const user = await DatabaseService.createUser({
       name,
       email,
       password,
@@ -148,11 +168,6 @@ router.post('/register', [
       website,
       phone
     });
-
-    // Generate API key
-    user.generateApiKey();
-
-    await user.save();
 
     // Generate secure JWT token
     const token = generateSecureToken({ userId: user._id, email: user.email });
@@ -191,7 +206,7 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await DatabaseService.findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -203,8 +218,7 @@ router.post('/login', [
     }
 
     // Update last login
-    user.lastLoginAt = new Date();
-    await user.save();
+    await DatabaseService.updateUser(user._id, { lastLoginAt: new Date() });
 
     // Generate secure JWT token
     const token = generateSecureToken({ userId: user._id, email: user.email });
@@ -235,13 +249,10 @@ router.post('/login', [
 // Get user profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await DatabaseService.findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
-    // Remove password from response using the mock DB select method
-    const userWithoutPassword = user.select('-password');
 
     res.json({
       user: {
@@ -281,7 +292,7 @@ router.put('/widget-config', authenticateToken, [
       return res.status(400).json({ error: 'Invalid input', details: errors.array() });
     }
 
-    const user = await User.findById(req.user.userId);
+    const user = await DatabaseService.findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -294,7 +305,7 @@ router.put('/widget-config', authenticateToken, [
       }
     });
 
-    await user.save();
+    await DatabaseService.updateUser(user._id, { widgetConfig: user.widgetConfig });
 
     res.json({
       message: 'Widget configuration updated successfully',
@@ -331,7 +342,7 @@ router.post('/logout', authenticateToken, (req, res) => {
 // Refresh token
 router.post('/refresh-token', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await DatabaseService.findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -356,13 +367,13 @@ router.post('/refresh-token', authenticateToken, async (req, res) => {
 // Regenerate API Key
 router.post('/regenerate-api-key', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await DatabaseService.findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     user.generateApiKey();
-    await user.save();
+    await DatabaseService.updateUser(user._id, { apiKey: user.apiKey });
 
     res.json({
       message: 'API key regenerated successfully',
@@ -372,6 +383,195 @@ router.post('/regenerate-api-key', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('API key regeneration error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// OTP Verification Routes
+
+// Send OTP to email
+router.post('/send-otp', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    try {
+      const otp = await OTPService.generateAndStoreOTP(user.email, 'email');
+      
+      // Send OTP via email
+      EmailService.sendOTPEmail(user.email, user.name, otp).catch(error => {
+        console.error('Failed to send OTP email:', error);
+      });
+
+      res.json({
+        success: true,
+        message: 'OTP sent to your email successfully',
+        expiresIn: 600 // 10 minutes
+      });
+
+    } catch (error) {
+      console.error('Failed to send OTP:', error);
+      res.status(500).json({ error: 'Failed to send OTP' });
+    }
+
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Verify OTP
+router.post('/verify-otp', [
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
+], authenticateToken, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: 'Invalid input', details: errors.array() });
+    }
+
+    const { otp } = req.body;
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const verificationResult = await OTPService.verifyOTP(user.email, otp);
+    
+    if (verificationResult.success) {
+      // Update user's email verification status
+      await DatabaseService.updateUser(user._id, {
+        emailVerified: true,
+        'verificationStatus.email': true,
+        'verificationStatus.emailVerifiedAt': new Date()
+      });
+
+      res.json({
+        success: true,
+        message: 'Email verified successfully'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: verificationResult.error,
+        code: verificationResult.code,
+        attemptsRemaining: verificationResult.attemptsRemaining
+      });
+    }
+
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Resend OTP
+router.post('/resend-otp', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const resendResult = await OTPService.resendOTP(user.email, 'email');
+    
+    if (resendResult.success) {
+      // Send OTP via email
+      EmailService.sendOTPEmail(user.email, user.name, resendResult.otp).catch(error => {
+        console.error('Failed to send OTP email:', error);
+      });
+
+      res.json({
+        success: true,
+        message: 'OTP resent to your email successfully'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: resendResult.error,
+        code: resendResult.code
+      });
+    }
+
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Check OTP status
+router.get('/otp-status', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const status = OTPService.getOTPStatus(user.email);
+    
+    res.json({
+      success: true,
+      status
+    });
+
+  } catch (error) {
+    console.error('OTP status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Email Verification Routes
+
+// Mark email as verified (simplified - in production, use email links with tokens)
+router.post('/verify-email', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await DatabaseService.updateUser(user._id, {
+      emailVerified: true,
+      'verificationStatus.email': true,
+      'verificationStatus.emailVerifiedAt': new Date()
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully'
+    });
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Resend welcome email
+router.post('/resend-welcome-email', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await EmailService.sendWelcomeEmail(user.email, user.name);
+
+    res.json({
+      success: true,
+      message: 'Welcome email sent successfully'
+    });
+
+  } catch (error) {
+    console.error('Resend welcome email error:', error);
+    res.status(500).json({ error: 'Failed to send email' });
   }
 });
 

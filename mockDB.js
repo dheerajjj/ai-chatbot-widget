@@ -49,6 +49,13 @@ class MockUser {
     
     this.apiKey = null;
     this.emailVerified = false;
+    this.phoneVerified = false;
+    this.verificationStatus = {
+      email: false,
+      phone: false,
+      emailVerifiedAt: null,
+      phoneVerifiedAt: null
+    };
     this.createdAt = new Date();
     this.lastLoginAt = new Date();
   }

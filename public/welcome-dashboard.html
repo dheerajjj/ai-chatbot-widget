@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Aboard - Mouna AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 1rem 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        
+        .logo img {
+            height: 32px;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .welcome-header {
+            text-align: left;
+            margin-bottom: 3rem;
+        }
+        
+        .welcome-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.125rem;
+            color: #64748b;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            transform: translateY(-2px);
+        }
+        
+        .card-title {
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .progress-list {
+            list-style: none;
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .progress-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .completed .progress-indicator {
+            background: #22c55e;
+        }
+        
+        .pending .progress-indicator {
+            background: #e2e8f0;
+        }
+        
+        .completed {
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .pending {
+            color: #94a3b8;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background: #4338ca;
+        }
+
+        .btn i {
+            width: 20px;
+        }
+        
+        .plan-banner {
+            background: #fafafa;
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .plan-banner h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+        
+        .plan-banner p {
+            margin-bottom: 1.5rem;
+            color: #64748b;
+        }
+        
+        .status-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .status-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .status-value {
+            color: #64748b;
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .setup-required {
+            background-color: #fef9c3;
+            color: #a16207;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            display: inline-block;
+        }
+
+        /* Locked Feature Styles */
+        .btn.locked {
+            background: #9ca3af;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .btn.locked:hover {
+            background: #9ca3af;
+        }
+
+        .premium-badge {
+            font-size: 0.75rem;
+            background: #f59e0b;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            margin-left: auto;
+        }
+
+        .upgrade-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .upgrade-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .upgrade-modal h3 {
+            color: #4f46e5;
+            margin-bottom: 1rem;
+        }
+
+        .upgrade-modal .btn {
+            margin-top: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://i.ibb.co/VvZVj8Z/mouna-logo.png" alt="Mouna Logo">
+                Mouna AI
+            </div>
+            <div class="user-menu">
+                <span class="user-name" id="user-name"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <h1 class="welcome-title" id="welcome-title">Welcome aboard!</h1>
+            <p class="welcome-subtitle">Let's get your AI chatbot up and running.</p>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Setup Progress -->
+            <div class="card">
+                <h3 class="card-title">Setup Progress</h3>
+                <ul class="progress-list">
+                    <li class="progress-item completed" id="progress-signup">
+                        <div class="progress-indicator"><i class="fas fa-check"></i></div>
+                        Sign-up complete
+                    </li>
+                    <li class="progress-item pending" id="progress-plan">
+                        <div class="progress-indicator"></div>
+                        Choose a plan
+                    </li>
+                    <li class="progress-item pending" id="progress-customize">
+                        <div class="progress-indicator"></div>
+                        Customize your chatbot
+                    </li>
+                    <li class="progress-item pending" id="progress-embed">
+                        <div class="progress-indicator"></div>
+                        Embed chatbot on your site
+                    </li>
+                    <li class="progress-item pending" id="progress-live">
+                        <div class="progress-indicator"></div>
+                        Go live
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Actions Column -->
+            <div style="display: contents;">
+                <!-- Plan Banner -->
+                <div class="card plan-banner" id="plan-banner">
+                    <h3>You haven't selected a plan yet.</h3>
+                    <p>Start with a free plan and upgrade anytime.</p>
+                    <button class="btn" onclick="viewPlans()">
+                        <i class="fas fa-rocket"></i>
+                        View Plans
+                    </button>
+                </div>
+
+                <!-- Get Started Actions -->
+                <div class="card">
+                    <h3 class="card-title">Get Started</h3>
+                    <div class="action-buttons">
+                        <button class="btn locked-feature" id="customize-btn" onclick="customizeAppearance()">
+                            <i class="fas fa-palette"></i>
+                            Customize the appearance
+                            <span class="premium-badge" style="display:none;">🔒 Premium</span>
+                        </button>
+                        <button class="btn locked-feature" id="prompt-btn" onclick="configureChatPrompt()">
+                            <i class="fas fa-comments"></i>
+                            Configure the chat prompt
+                            <span class="premium-badge" style="display:none;">🔒 Premium</span>
+                        </button>
+                        <button class="btn" onclick="addWidget()">
+                            <i class="fas fa-code"></i>
+                            Add the widget to your site
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Setup Status -->
+            <div class="card">
+                <h3 class="card-title">Chatbot Setup</h3>
+                <div class="status-card">
+                    <div class="status-item">
+                        <span class="status-label">Widget:</span>
+                        <span class="status-value" id="widget-status">Not Active</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Model:</span>
+                        <span class="status-value" id="model-status">Not Selected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Tokens Used:</span>
+                        <span class="status-value" id="tokens-used">0</span>
+                    </div>
+                </div>
+                <div class="setup-required">
+                    Setup Required
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div class="upgrade-modal" id="upgrade-modal">
+        <div class="upgrade-modal-content">
+            <h3>🔒 Premium Feature</h3>
+            <p>This feature is available for paid plan users only. Upgrade your plan to unlock advanced customization and configuration options.</p>
+            <button class="btn" onclick="viewPlans()">Upgrade Now</button>
+            <button class="btn" onclick="closeUpgradeModal()" style="background: #6b7280; margin-left: 0.5rem;">Maybe Later</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch and display user data when the page loads
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            loadUserData(token);
+        });
+
+        async function loadUserData(token) {
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch user data');
+                
+                const { user } = await response.json();
+                
+                if (user) {
+                    // Personalize welcome message and user menu
+                    document.getElementById('user-name').textContent = user.name;
+                    document.getElementById('welcome-title').textContent = `Welcome aboard, ${user.name}!`;
+
+                    // Check subscription status to update the plan banner and feature access
+                    const userPlan = user.subscription?.plan || 'free';
+                    if (userPlan !== 'free') {
+                        document.getElementById('plan-banner').style.display = 'none';
+                        document.getElementById('progress-plan').classList.replace('pending', 'completed');
+                        document.getElementById('progress-plan').querySelector('.progress-indicator').innerHTML = '<i class="fas fa-check"></i>';
+                        
+                        // Unlock premium features
+                        unlockPremiumFeatures();
+                    } else {
+                        // Lock premium features for free users
+                        lockPremiumFeatures();
+                    }
+
+                    // Update chatbot status display
+                    document.getElementById('tokens-used').textContent = user.usage ? user.usage.totalMessages : 0;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // If token is invalid or expired, send to login
+                window.location.href = '/login';
+            }
+        }
+
+        // --- Action Functions ---
+        function viewPlans() {
+            window.location.href = '/pricing';
+        }
+
+        function customizeAppearance() {
+            window.location.href = '/customize-widget';
+        }
+
+        function configureChatPrompt() {
+            window.location.href = '/configure-prompt';
+        }
+
+        function addWidget() {
+            window.location.href = '/integration';
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+
+        // --- Feature Locking Functions ---
+        function lockPremiumFeatures() {
+            const customizeBtn = document.getElementById('customize-btn');
+            const promptBtn = document.getElementById('prompt-btn');
+            
+            // Add locked styling
+            customizeBtn.classList.add('locked');
+            promptBtn.classList.add('locked');
+            
+            // Show premium badges
+            customizeBtn.querySelector('.premium-badge').style.display = 'inline';
+            promptBtn.querySelector('.premium-badge').style.display = 'inline';
+            
+            // Override click handlers to show upgrade modal
+            customizeBtn.onclick = showUpgradeModal;
+            promptBtn.onclick = showUpgradeModal;
+        }
+        
+        function unlockPremiumFeatures() {
+            const customizeBtn = document.getElementById('customize-btn');
+            const promptBtn = document.getElementById('prompt-btn');
+            
+            // Remove locked styling
+            customizeBtn.classList.remove('locked');
+            promptBtn.classList.remove('locked');
+            
+            // Hide premium badges
+            customizeBtn.querySelector('.premium-badge').style.display = 'none';
+            promptBtn.querySelector('.premium-badge').style.display = 'none';
+            
+            // Restore original click handlers
+            customizeBtn.onclick = customizeAppearance;
+            promptBtn.onclick = configureChatPrompt;
+        }
+        
+        function showUpgradeModal() {
+            document.getElementById('upgrade-modal').style.display = 'flex';
+        }
+        
+        function closeUpgradeModal() {
+            document.getElementById('upgrade-modal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('upgrade-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUpgradeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

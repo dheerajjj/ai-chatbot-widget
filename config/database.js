@@ -12,12 +12,12 @@ class Database {
       console.log('🔌 Connecting to MongoDB...');
       
       this.connection = await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+        serverSelectionTimeoutMS: 10000, // Timeout after 10s
         socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-        ssl: true,
-        tls: true,
-        tlsAllowInvalidCertificates: false,
-        tlsAllowInvalidHostnames: false,
+        connectTimeoutMS: 10000, // Give up initial connection after 10s
+        maxPoolSize: 10, // Maintain up to 10 socket connections
+        minPoolSize: 2, // Maintain at least 2 socket connections
+        maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
         retryWrites: true,
         w: 'majority'
       });

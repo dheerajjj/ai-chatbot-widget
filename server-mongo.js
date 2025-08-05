@@ -40,7 +40,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net"],
       scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'", "http://localhost:3000", "https://localhost:3000"]
     }
   }
 }));
@@ -50,6 +50,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:3000',
   'http://localhost:8080',
   'http://127.0.0.1:5500',
+  'https://five-coat-production.up.railway.app',
   'file://',
   'null'
 ];
@@ -154,6 +155,35 @@ async function startServer() {
         database: status,
         openai: !!process.env.OPENAI_API_KEY
       });
+    });
+
+    // Widget customization -- Save appearance
+    app.post('/api/widget/customize', validateApiKey, async (req, res) => {
+      try {
+        const userId = req.user._id;
+        const { primaryColor, title, welcomeMessage } = req.body;
+        const update = {
+          'widgetConfig.primaryColor': primaryColor,
+          'widgetConfig.title': title,
+          'widgetConfig.welcomeMessage': welcomeMessage
+        };
+        await DatabaseService.updateUser(userId, update);
+        res.json({ success: true, message: "Widget customization saved." });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to save widget customization.' });
+      }
+    });
+
+    // Widget prompt -- Save system prompt
+    app.post('/api/widget/prompt', validateApiKey, async (req, res) => {
+      try {
+        const userId = req.user._id;
+        const { systemPrompt } = req.body;
+        await DatabaseService.updateUser(userId, { 'widgetConfig.systemPrompt': systemPrompt });
+        res.json({ success: true, message: "System prompt saved." });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to save prompt.' });
+      }
     });
     
     // IP detection endpoint
@@ -425,6 +455,113 @@ async function startServer() {
     app.get('/test-simple', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'test-simple.html'));
     });
+    
+    // OTP Test endpoint - generates and displays OTP for testing
+    app.get('/test-otp/:email?', async (req, res) => {
+      try {
+        const email = req.params.email || 'test@example.com';
+        const OTPService = require('./services/OTPService');
+        
+        // Generate OTP
+        const otp = await OTPService.generateAndStoreOTP(email, 'email');
+        
+        res.json({
+          success: true,
+          message: 'OTP generated successfully',
+          email: email,
+          otp: otp,
+          note: 'This is for testing only. In production, OTP would be sent via email.'
+        });
+      } catch (error) {
+        console.error('Test OTP error:', error);
+        res.status(500).json({ error: 'Failed to generate test OTP' });
+      }
+    });
+    
+    // Test registration page with OTP
+    app.get('/test-registration', (req, res) => {
+      const filePath = path.join(__dirname, 'public', 'test-registration.html');
+      
+      // Send file with error handling
+      res.sendFile(filePath, (err) => {
+        if (err) {
+          console.error('Error serving test-registration.html:', err);
+          // Fallback inline HTML
+          res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Registration - Email OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; }
+        .note { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test Registration with Email OTP</h1>
+    <div class="note">You will receive an OTP via email after registration.</div>
+    
+    <form id="regForm">
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="password" required>
+        </div>
+        <div class="form-group">
+            <label>Phone:</label>
+            <input type="tel" id="phone" placeholder="+91XXXXXXXXXX" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    
+    <div id="response"></div>
+    
+    <script>
+        document.getElementById('regForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('response').innerHTML = 
+                    '<div style="margin-top:20px;padding:15px;border-radius:4px;background:' + 
+                    (response.ok ? '#d4edda;color:#155724' : '#f8d7da;color:#721c24') + '">' +
+                    (response.ok ? 'Registration successful! Check server logs for OTP.' : 'Error: ' + result.error) +
+                    '</div>';
+            } catch (error) {
+                document.getElementById('response').innerHTML = 
+                    '<div style="margin-top:20px;padding:15px;border-radius:4px;background:#f8d7da;color:#721c24">Network error: ' + error.message + '</div>';
+            }
+        };
+    </script>
+</body>
+</html>
+        `);
+        }
+      });
+    });
 
     // Get test API key for widget testing
     app.get('/test-api-key', (req, res) => {
@@ -505,15 +642,36 @@ async function startServer() {
     });
     
     app.get('/signup', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+        res.sendFile(path.join(__dirname, 'public', 'signup.html'));
     });
     
     app.get('/login', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'login.html'));
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
     });
     
     app.get('/dashboard', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+        res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+    });
+    
+    app.get('/pricing', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'pricing.html'));
+    });
+    
+    app.get('/customize-widget', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'customize-widget.html'));
+    });
+
+    app.get('/configure-prompt', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'configure-prompt.html'));
+    });
+
+    app.get('/integration', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'integration.html'));
+    });
+
+    // Welcome dashboard for new users after OTP verification
+    app.get('/welcome-dashboard', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'welcome-dashboard.html'));
     });
     
     // Admin login page

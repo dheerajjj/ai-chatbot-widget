@@ -90,6 +90,8 @@
             <input type="email" id="email" name="email" required>
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required minlength="6">
+            <label for="phone">Phone (optional)</label>
+            <input type="text" id="phone" name="phone" placeholder="+1234567890">
             <button class="btn" type="submit" id="submit-btn">Sign Up</button>
         </form>
         <a href="/login" class="signin-link">Already have an account? Sign In</a>
@@ -115,7 +117,8 @@
                 const formData = {
                     name: document.getElementById('name').value,
                     email: document.getElementById('email').value,
-                    password: document.getElementById('password').value
+                    password: document.getElementById('password').value,
+                    phone: document.getElementById('phone').value
                 };
                 
                 const response = await fetch('/api/signup', {

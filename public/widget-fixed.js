@@ -182,7 +182,7 @@
                 .chatbot-widget-overlay {
                     position: fixed;
                     bottom: 90px;
-                    ${currentConfig.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
+                    right: 20px;
                     width: 380px;
                     max-width: calc(100vw - 40px);
                     height: 500px;
@@ -398,7 +398,7 @@
                 .chatbot-widget-trigger {
                     position: fixed;
                     bottom: 20px;
-                    ${currentConfig.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
+                    right: 20px;
                     width: 60px;
                     height: 60px;
                     background: ${currentConfig.primaryColor};
@@ -412,7 +412,6 @@
                     justify-content: center;
                     color: white;
                     transition: all 0.3s ease;
-                    position: relative;
                 }
                 
                 .chatbot-widget-trigger:hover {

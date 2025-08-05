@@ -2,6 +2,7 @@ const express = require('express');
 const { User, Subscription } = require('../mockDB');
 const { PRICING_PLANS, ANNUAL_PRICING } = require('../config/pricing');
 const { authenticateToken } = require('./auth');
+const DatabaseService = require('../services/DatabaseService');
 const router = express.Router();
 
 // Initialize Razorpay (optional)
@@ -262,6 +263,74 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   } catch (error) {
     console.error('Webhook handling error:', error);
     res.status(500).json({ error: 'Webhook handling failed' });
+  }
+});
+
+// Simplified subscription create endpoint for pricing page
+router.post('/subscription/create', authenticateToken, async (req, res) => {
+  try {
+    const { plan } = req.body;
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // For demo purposes, directly update the plan
+    if (plan === 'free') {
+      // Downgrade to free
+      await DatabaseService.updateUser(user._id, {
+        'subscription.plan': 'free',
+        'subscription.status': 'active'
+      });
+      
+      return res.json({
+        success: true,
+        message: 'Plan changed to Free successfully'
+      });
+    } else {
+      // For paid plans, in a real implementation you'd redirect to payment
+      // For now, let's simulate a successful upgrade
+      await DatabaseService.updateUser(user._id, {
+        'subscription.plan': plan,
+        'subscription.status': 'active'
+      });
+      
+      return res.json({
+        success: true,
+        message: `Plan upgraded to ${plan} successfully`,
+        // In real implementation, this would be the payment URL
+        paymentUrl: null
+      });
+    }
+  } catch (error) {
+    console.error('Subscription creation error:', error);
+    res.status(500).json({ error: 'Failed to create subscription' });
+  }
+});
+
+// Cancel subscription endpoint
+router.post('/subscription/cancel', authenticateToken, async (req, res) => {
+  try {
+    const user = await DatabaseService.findUserById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Downgrade to free plan
+    await DatabaseService.updateUser(user._id, {
+      'subscription.plan': 'free',
+      'subscription.status': 'active'
+    });
+    
+    res.json({
+      success: true,
+      message: 'Plan changed to Free successfully'
+    });
+  } catch (error) {
+    console.error('Subscription cancellation error:', error);
+    res.status(500).json({ error: 'Failed to cancel subscription' });
   }
 });
 
